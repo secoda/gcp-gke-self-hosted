@@ -1,0 +1,33 @@
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+*tfplan*
+.terraformrc
+terraform.rc
+
+.terraform.lock.hcl
+
+onprem.tfvars
+secoda.onprem.tfvars
+
+.terraform
+
+.DS_Store
+
+local.predefined-secrets.yaml
+secoda.public.pem
+secoda.private.pem
+cert.pem
+key.pem

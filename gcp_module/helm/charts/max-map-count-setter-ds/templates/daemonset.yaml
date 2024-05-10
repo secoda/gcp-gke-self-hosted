@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: max-map-count-setter
+  labels:
+    k8s-app: max-map-count-setter
+spec:
+  selector:
+    matchLabels:
+      name: max-map-count-setter
+  template:
+    metadata:
+      labels:
+        name: max-map-count-setter
+    spec:
+      priorityClassName: user-daemonset-priority
+      nodeSelector:
+        cloud.google.com/compute-class: "Balanced"
+      initContainers:
+        - name: max-map-count-setter
+          image: docker.io/bash:5.2.15
+          resources:
+            requests:
+              cpu: 10m
+              memory: 10Mi
+              ephemeral-storage: 10Mi
+            limits:
+              cpu: 50m
+              memory: 32Mi
+              ephemeral-storage: 10Mi
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          command: ["/usr/local/bin/bash", "-e", "-c", "echo 262144 > /proc/sys/vm/max_map_count"]
+      containers:
+        - name: sleep
+          image: docker.io/bash:5.2.15
+          command: ["sleep", "infinity"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 10Mi
+              ephemeral-storage: 10Mi
+            limits:
+              cpu: 10m
+              memory: 10Mi

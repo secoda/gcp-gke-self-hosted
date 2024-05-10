@@ -1,0 +1,4 @@
+securityContext:
+  sysctls:
+  - name: net.core.somaxconn
+    value: "10000"

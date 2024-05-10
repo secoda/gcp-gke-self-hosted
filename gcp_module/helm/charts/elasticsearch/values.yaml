@@ -1,0 +1,3 @@
+kubernetesClusterDomain: cluster.local
+
+nodeSelector: {}

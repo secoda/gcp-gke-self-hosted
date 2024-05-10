@@ -1,0 +1,81 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: elasticsearch
+  labels:
+  {{- include "elasticsearch.labels" . | nindent 4 }}
+spec:
+  http:
+    tls:
+      selfSignedCertificate:
+        disabled: true
+  nodeSets:
+  - config:
+      node.roles:
+      - master
+      - data
+      - ingest
+      - ml
+      - remote_cluster_client
+    count: {{ .Values.nodeSets.count }}
+    name: default
+    podTemplate:
+      metadata:
+        labels:
+          app.kubernetes.io/component: elasticsearch
+          app.kubernetes.io/name: elasticsearch
+          app.kubernetes.io/part-of: elk
+          app.kubernetes.io/version: 8.9.0
+      spec:
+        containers:
+        - env:
+          - name: ES_JAVA_OPTS
+            value: {{ .Values.env.es_java_opts.value }}
+          name: elasticsearch
+          resources:
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              ephemeral-storage: 1008Mi
+              memory: {{ .Values.resources.limits.mem }}
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              ephemeral-storage: 1008Mi
+              memory: {{ .Values.resources.requests.mem }}
+        initContainers:
+        - command:
+          - sh
+          - -c
+          - while true; do mmc=$(cat /proc/sys/vm/max_map_count); if test ${mmc} -eq
+            262144; then exit 0; fi; sleep 1; done
+          name: max-map-count-check
+          resources:
+            limits:
+              cpu: 10m
+              ephemeral-storage: 16Mi
+              memory: 16Mi
+            requests:
+              cpu: 10m
+              ephemeral-storage: 16Mi
+              memory: 16Mi
+        {{- with .Values.nodeSelector }}
+        nodeSelector:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.resources.requests.storage }}
+        storageClassName: standard-rwo
+  podDisruptionBudget:
+    spec:
+      minAvailable: 1
+      selector:
+        matchLabels:
+          elasticsearch.k8s.elastic.co/cluster-name: elasticsearch
+  version: 8.9.0
+  volumeClaimDeletePolicy: DeleteOnScaledownOnly

@@ -1,0 +1,2 @@
+nodeSelector:
+  cloud.google.com/compute-class: Balanced
