@@ -36,4 +36,4 @@ nodeSelectorFrontend: {}
 
 env:
   - name: IS_MANAGED
-    value: "true"
+    value: "false"
